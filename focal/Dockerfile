@@ -7,6 +7,10 @@ MAINTAINER Robbert van der Helm <mail@robbertvanderhelm.nl>
 # how this is used in the workflow files under
 # https://github.com/robbert-vdh/yabridge/tree/master/.github/workflows
 
+# dpkg might otherwise prompt us to select a timezoone while installing tzdata,
+# even though we can't
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Set up repositories needed for Wine and its development toolchain
 RUN apt-get update && \
     apt-get install -y software-properties-common git wget && \

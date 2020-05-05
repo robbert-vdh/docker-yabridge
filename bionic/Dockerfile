@@ -8,6 +8,10 @@ MAINTAINER Robbert van der Helm <mail@robbertvanderhelm.nl>
 # workflow files under
 # https://github.com/robbert-vdh/yabridge/tree/master/.github/workflows
 
+# dpkg might otherwise prompt us to select a timezoone while installing tzdata,
+# even though we can't
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Set up repositories needed for Wine and its development toolchain. Wine
 # requires faudio which is missing from Ubuntu 18.04's repositories, so we have
 # to obtain that library through a backports PPA.
