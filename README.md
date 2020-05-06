@@ -1,6 +1,6 @@
 # Docker images for building yabridge
 
-This repository contains Dockerfiles that can be used to build
+This repository contains Dockerfiles for images that can be used to build
 [yabridge](https://github.com/robbert-vdh/yabridge) under Ubuntu LTS releases.
 This is needed because older Ubuntu releases don't contain some of the
 dependencies needed to compile yabridge. See the [GitHub

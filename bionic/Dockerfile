@@ -3,14 +3,16 @@ MAINTAINER Robbert van der Helm <mail@robbertvanderhelm.nl>
 
 # This Dockerfile is made solely for the purpose of building yabridge on older
 # versions of Ubuntu. This will install everything needed to compile yabridge
-# except for Boost, since compiling the few Boost modules we need is very quick
-# anyway and our needs might chance over time. See how this is used in the
-# workflow files under
+# under Ubuntu 18.04. See how this is used in the workflow files under
 # https://github.com/robbert-vdh/yabridge/tree/master/.github/workflows
 
 # dpkg might otherwise prompt us to select a timezoone while installing tzdata,
 # even though we can't
 ENV DEBIAN_FRONTEND=noninteractive
+
+ENV BOOST_URL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz"
+ENV BOOST_CHECKSUM="c66e88d5786f2ca4dbebb14e06b566fb642a1a6947ad8cc9091f9f445134143f  boost_1_72_0.tar.gz"
+ENV BOOST_VERSION="1_72_0"
 
 # Set up repositories needed for Wine and its development toolchain. Wine
 # requires faudio which is missing from Ubuntu 18.04's repositories, so we have
@@ -43,3 +45,53 @@ RUN apt-get update && \
 # Finally default to GCC 8, since the default GCC 7's C++17 implementation is
 # incomplete
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+
+# Compile and install the Boost libraries we need. This should not take longer
+# than a few seconds, but the disk IO required slows the jobs on GitHub Actions
+# down immensely.
+RUN mkdir /tmp/boost && \
+    cd /tmp/boost && \
+    wget --quiet --max-redirect 3 "$BOOST_URL" && \
+    echo "$BOOST_CHECKSUM" | sha256sum -c && \
+    tar -xf "boost_${BOOST_VERSION}.tar.gz" && \
+    rm "boost_${BOOST_VERSION}.tar.gz" && \
+    \
+    cd boost_${BOOST_VERSION} && \
+    ./bootstrap.sh --with-toolset=gcc --with-icu --with-python= && \
+    \
+    # 32-bit build
+    ./b2 \
+    variant=release \
+    debug-symbols=off \
+    threading=multi \
+    runtime-link=shared \
+    link=shared,static \
+    toolset=gcc \
+    address-model=32 \
+    cflags="${CPPFLAGS} ${CFLAGS} -m32 -fPIC -O3" \
+    cxxflags="${CPPFLAGS} ${CXXFLAGS} -m32 -std=c++14 -fPIC -O3" \
+    linkflags="${LDFLAGS} -m32" \
+    --with-filesystem \
+    --libdir=/usr/local/lib/i386-linux-gnu \
+    -j $(nproc) \
+    \
+    install && \
+    \
+    # 64-bit build
+    ./b2 \
+    variant=release \
+    debug-symbols=off \
+    threading=multi \
+    runtime-link=shared \
+    link=shared,static \
+    toolset=gcc \
+    address-model=64 \
+    cflags="${CPPFLAGS} ${CFLAGS} -fPIC -O3" \
+    cxxflags="${CPPFLAGS} ${CXXFLAGS} -std=c++14 -fPIC -O3" \
+    --with-filesystem \
+    -j $(nproc) \
+    \
+    install && \
+    \
+    cd / && \
+    rm -rf /tmp/boost
