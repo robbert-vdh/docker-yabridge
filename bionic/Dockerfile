@@ -14,11 +14,18 @@ ENV BOOST_URL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_
 ENV BOOST_CHECKSUM="c66e88d5786f2ca4dbebb14e06b566fb642a1a6947ad8cc9091f9f445134143f  boost_1_72_0.tar.gz"
 ENV BOOST_VERSION="1_72_0"
 
+# Add a PPA for newer versions of git since GitHub Actions has a hard dependency
+# on git 2.18 while Ubuntu 18.04 ships with git 2.17
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:git-core/ppa && \
+    rm -rf /var/lib/apt/lists/*
+
 # Set up repositories needed for Wine and its development toolchain. Wine
 # requires faudio which is missing from Ubuntu 18.04's repositories, so we have
 # to obtain that library through a backports PPA.
 RUN apt-get update && \
-    apt-get install -y software-properties-common git wget && \
+    apt-get install -y git wget && \
     dpkg --add-architecture i386 && \
     wget -O - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
     add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' && \
