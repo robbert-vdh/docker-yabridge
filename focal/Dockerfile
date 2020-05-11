@@ -18,20 +18,12 @@ RUN apt-get update && \
     apt-get install -y software-properties-common git wget && \
     dpkg --add-architecture i386 && \
     wget -O - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
-    add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' && \
+    add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Wine and its development headers
-# NOTE: As of writing this, the latest Wine release (5.7) has a regression with
-#       winelib applications like yabridge, so we need to explicitely install
-#       Wine Staging 5.6. Because of this we need to mmanually specify all of
-#       these extra `wine-staging*` packages as apt will otherwise try to
-#       install 5.7 anyway.
-# NOTE: Also, we're installing it from Wine's repo meant for Ubuntu 18.04. This
-#       sounds like a horrible idea but official repo intended for Ubuntu 20.04
-#       only has versions 5.7 and up.
 RUN apt-get update && \
-    apt-get install -y --install-recommends winehq-staging=5.6~bionic wine-staging-dev=5.6~bionic wine-staging=5.6~bionic wine-staging-amd64=5.6~bionic wine-staging-i386=5.6~bionic && \
+    apt-get install -y --install-recommends winehq-staging wine-staging-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install the rest of the build dependencies

@@ -33,13 +33,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Wine and its development headers
-# NOTE: As of writing this, the latest Wine release (5.7) has a regression with
-#       winelib applications like yabridge, so we need to explicitely install
-#       Wine Staging 5.6. Because of this we need to mmanually specify all of
-#       these extra `wine-staging*` packages as apt will otherwise try to
-#       install 5.7 anyway.
 RUN apt-get update && \
-    apt-get install -y --install-recommends winehq-staging=5.6~bionic wine-staging-dev=5.6~bionic wine-staging=5.6~bionic wine-staging-amd64=5.6~bionic wine-staging-i386=5.6~bionic && \
+    apt-get install -y --install-recommends winehq-staging wine-staging-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install the rest of the build dependencies
