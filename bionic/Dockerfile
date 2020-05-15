@@ -37,19 +37,19 @@ RUN apt-get update && \
     apt-get install -y --install-recommends winehq-staging wine-staging-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Install and default to GCC 9 since the behavior between the default GCC 7 and
-# the available GCC 8 is every so slightly different from GCC 9
-RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    apt-get update && \
-    apt-get install -y g++-9 g++-9-multilib && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 930 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
-    rm -rf /var/lib/apt/lists/*
-
 # Install the rest of the build dependencies
 RUN apt-get update && \
     apt-get install -y build-essential pkg-config python3-pip nodejs && \
     apt-get install -y libxcb1-dev libxcb1-dev:i386 && \
     pip3 install meson ninja && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install and default to GCC 9 since the behavior between the default GCC 7 and
+# the available GCC 8 is every so slightly different from GCC 9
+RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+    apt-get update && \
+    apt-get install -y gcc-9 gcc-9-multilib g++-9 g++-9-multilib && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 930 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
     rm -rf /var/lib/apt/lists/*
 
 # Compile and install the Boost libraries we need. This should not take longer
