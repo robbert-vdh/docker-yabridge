@@ -27,10 +27,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install the rest of the build dependencies
-# Ubuntu 20.04 comes with GCC 9 so there's no need to install anything special there anymore
+# We will default to GCC 10 to ensure that every build environment uses the same
+# versions.
 RUN apt-get update && \
-    apt-get install -y build-essential gcc-multilib g++-multilib pkg-config python3-pip nodejs && \
+    apt-get install -y build-essential pkg-config python3-pip nodejs && \
     apt-get install -y libxcb1-dev libxcb1-dev:i386 && \
+    apt-get install -y gcc-10 gcc-10-multilib g++-10 g++-10-multilib && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 110 --slave /usr/bin/g++ g++ /usr/bin/g++-10 && \
     pip3 install meson ninja && \
     rm -rf /var/lib/apt/lists/*
 

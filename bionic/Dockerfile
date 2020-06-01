@@ -44,12 +44,15 @@ RUN apt-get update && \
     pip3 install meson ninja && \
     rm -rf /var/lib/apt/lists/*
 
-# Install and default to GCC 9 since the behavior between the default GCC 7 and
-# the available GCC 8 is every so slightly different from GCC 9
+# Install and default to GCC 10 now that every major supported distro other than
+# Ubuntu 18.04 ships with GCC 10 so we can make use of some newer language
+# features. We will be statically linking to libstdc++ since Ubuntu 18.04 ships
+# an older version by default, but that won't cause any issues since we're only
+# exposing C interfaces.
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
-    apt-get install -y gcc-9 gcc-9-multilib g++-9 g++-9-multilib && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 930 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
+    apt-get install -y gcc-10 gcc-10-multilib g++-10 g++-10-multilib && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 110 --slave /usr/bin/g++ g++ /usr/bin/g++-10 && \
     rm -rf /var/lib/apt/lists/*
 
 # Compile and install the Boost libraries we need. This should not take longer
