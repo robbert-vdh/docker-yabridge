@@ -39,7 +39,7 @@ RUN apt-get update && \
 
 # Install the rest of the build dependencies
 RUN apt-get update && \
-    apt-get install -y build-essential pkg-config python3-pip nodejs && \
+    apt-get install -y build-essential cmake pkg-config python3-pip && \
     apt-get install -y libxcb1-dev libxcb1-dev:i386 && \
     pip3 install meson ninja && \
     rm -rf /var/lib/apt/lists/*
