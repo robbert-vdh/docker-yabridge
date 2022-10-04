@@ -10,10 +10,6 @@ MAINTAINER Robbert van der Helm <mail@robbertvanderhelm.nl>
 # even though we can't
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV BOOST_URL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz"
-ENV BOOST_CHECKSUM="c66e88d5786f2ca4dbebb14e06b566fb642a1a6947ad8cc9091f9f445134143f  boost_1_72_0.tar.gz"
-ENV BOOST_VERSION="1_72_0"
-
 # Add a PPA for newer versions of git since GitHub Actions has a hard dependency
 # on git 2.18 while Ubuntu 18.04 ships with git 2.17
 RUN apt-get update && \
@@ -54,53 +50,3 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get install -y gcc-10 gcc-10-multilib g++-10 g++-10-multilib && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 110 --slave /usr/bin/g++ g++ /usr/bin/g++-10 && \
     rm -rf /var/lib/apt/lists/*
-
-# Compile and install the Boost libraries we need. This should not take longer
-# than a few seconds, but the disk IO required slows the jobs on GitHub Actions
-# down immensely.
-RUN mkdir /tmp/boost && \
-    cd /tmp/boost && \
-    wget --quiet --max-redirect 3 "$BOOST_URL" && \
-    echo "$BOOST_CHECKSUM" | sha256sum -c && \
-    tar -xf "boost_${BOOST_VERSION}.tar.gz" && \
-    rm "boost_${BOOST_VERSION}.tar.gz" && \
-    \
-    cd boost_${BOOST_VERSION} && \
-    ./bootstrap.sh --with-toolset=gcc --with-icu --with-python= && \
-    \
-    # 32-bit build
-    ./b2 \
-    variant=release \
-    debug-symbols=off \
-    threading=multi \
-    runtime-link=shared \
-    link=shared,static \
-    toolset=gcc \
-    address-model=32 \
-    cflags="${CPPFLAGS} ${CFLAGS} -m32 -fPIC -O3" \
-    cxxflags="${CPPFLAGS} ${CXXFLAGS} -m32 -std=c++14 -fPIC -O3" \
-    linkflags="${LDFLAGS} -m32" \
-    --with-filesystem \
-    --libdir=/usr/local/lib/i386-linux-gnu \
-    -j $(nproc) \
-    \
-    install && \
-    \
-    # 64-bit build
-    ./b2 \
-    variant=release \
-    debug-symbols=off \
-    threading=multi \
-    runtime-link=shared \
-    link=shared,static \
-    toolset=gcc \
-    address-model=64 \
-    cflags="${CPPFLAGS} ${CFLAGS} -fPIC -O3" \
-    cxxflags="${CPPFLAGS} ${CXXFLAGS} -std=c++14 -fPIC -O3" \
-    --with-filesystem \
-    -j $(nproc) \
-    \
-    install && \
-    \
-    cd / && \
-    rm -rf /tmp/boost
