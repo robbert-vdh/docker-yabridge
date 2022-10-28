@@ -27,7 +27,7 @@ RUN apt-get update && \
 # versions.
 RUN apt-get update && \
     apt-get install -y build-essential cmake pkg-config python3-pip && \
-    apt-get install -y libxcb1-dev libxcb1-dev:i386 && \
+    apt-get install -y libdbus-1-dev libxcb1-dev libxcb1-dev:i386 && \
     apt-get install -y gcc-10 gcc-10-multilib g++-10 g++-10-multilib && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 110 --slave /usr/bin/g++ g++ /usr/bin/g++-10 && \
     pip3 install meson ninja && \
