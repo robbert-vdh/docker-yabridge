@@ -19,7 +19,7 @@ RUN apt-get update && \
 
 # Install Wine and its development headers
 RUN apt-get update && \
-    apt-get install -y --install-recommends winehq-staging wine-staging-dev && \
+    apt-get install -y --install-recommends winehq-devel wine-devel-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install the rest of the build dependencies
@@ -32,4 +32,3 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 110 --slave /usr/bin/g++ g++ /usr/bin/g++-10 && \
     pip3 install meson ninja && \
     rm -rf /var/lib/apt/lists/*
-
