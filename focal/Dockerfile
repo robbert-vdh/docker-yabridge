@@ -19,7 +19,8 @@ RUN apt-get update && \
 
 # Install Wine and its development headers
 RUN apt-get update && \
-    apt-get install -y --install-recommends winehq-devel wine-devel-dev && \
+    apt-get install -y --install-recommends winehq-devel=9.21~focal-1 wine-devel-dev=9.21~focal-1 \
+        wine-devel=9.21~focal-1 wine-devel-i386=9.21~focal-1 wine-devel-amd64=9.21~focal-1 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install the rest of the build dependencies
